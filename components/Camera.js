@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Camera } from "expo-camera";
 
-export default function App() {
+export default function App({ setCamera, setImage }) {
+  const ref = useRef();
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
 
@@ -16,6 +17,17 @@ export default function App() {
   const getPermissions = async () => {
     const { status } = await Camera.getPermissionsAsync();
     setHasPermission(status === "granted");
+  };
+
+  const takePicture = async () => {
+    if (ref.current) {
+      let photo = await ref.current.takePictureAsync();
+
+      if (photo) {
+        setImage(photo.uri);
+        setCamera();
+      }
+    }
   };
 
   const showContent = () => {
@@ -52,10 +64,9 @@ export default function App() {
 
       case true:
         return (
-          <Camera style={styles.camera} type={type}>
+          <Camera ref={ref} style={styles.camera} type={type}>
             <View style={styles.buttonContainer}>
               <TouchableOpacity
-                style={styles.button}
                 onPress={() => {
                   setType(
                     type === Camera.Constants.Type.back
@@ -65,6 +76,20 @@ export default function App() {
                 }}
               >
                 <Text style={styles.text}> Flip </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  position: "relative",
+                  width: "40%",
+                  height: 50,
+                  backgroundColor: "#FF7F2D",
+                  borderRadius: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+                onPress={takePicture}
+              >
+                <Text> CAPTURE </Text>
               </TouchableOpacity>
             </View>
           </Camera>
@@ -85,15 +110,13 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   buttonContainer: {
-    flex: 1,
-    backgroundColor: "transparent",
+    position: "absolute",
+    bottom: 0,
+    width: "90%",
+    alignItems: "center",
     flexDirection: "row",
     margin: 20,
-  },
-  button: {
-    flex: 0.1,
-    alignSelf: "flex-end",
-    alignItems: "center",
+    justifyContent: "space-between",
   },
   text: {
     fontSize: 18,

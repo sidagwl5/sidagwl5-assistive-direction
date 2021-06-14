@@ -50,7 +50,9 @@ const Upload = ({ navigation }) => {
   };
 
   if (camera) {
-    return <Camera setCamera={setCamera.bind(this, null)} />;
+    return (
+      <Camera setImage={setImage} setCamera={setCamera.bind(this, null)} />
+    );
   }
 
   return (
@@ -71,7 +73,7 @@ const Upload = ({ navigation }) => {
                 width: "100%",
                 height: "100%",
                 zIndex: 4000,
-                backgroundColor: "rgba(0, 0, 0, 0.3)",
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
                 position: "absolute",
               }}
               size='large'
