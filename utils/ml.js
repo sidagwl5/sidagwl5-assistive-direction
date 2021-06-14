@@ -24,13 +24,26 @@ const ml = async (uri) => {
   const raw = new Uint8Array(imgBuffer);
 
   let imageTensor = decodeJpeg(raw, 3);
-  
-  imageTensor = imageTensor.resizeNearestNeighbor([30,30]).toInt().expandDims();  
-  const prediction = (await model.predict(imageTensor));
-  
-  console.log("boom");
-  console.log("prediction: ", prediction);
-  return prediction[0];
+
+  imageTensor = imageTensor
+    .resizeNearestNeighbor([30, 30])
+    .toInt()
+    .expandDims();
+
+  const prediction = await model.predict(imageTensor);
+  const predictionArray = prediction.dataSync();
+
+  let maxValue = { class: -1, probability: -1 };
+  predictionArray.forEach((pred, i) => {
+    if (maxValue.probability < pred) {
+      maxValue = {
+        class: i,
+        probability: pred,
+      };
+    }
+  });
+
+  return maxValue;
 };
 
 export default ml;
